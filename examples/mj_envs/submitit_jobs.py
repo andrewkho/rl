@@ -12,7 +12,7 @@ executor = submitit.AutoExecutor(folder="REDQ_log")
 
 # set timeout in min, and partition for running the job
 executor.update_parameters(timeout_min=1200, slurm_partition="train",
-                           gpus_per_node=5, cpus_per_task=96)
+                           gpus_per_node=8, cpus_per_task=95)
 jobs = []
 exp_names = []
 seed_list = [1, 42, 1988]
@@ -41,7 +41,7 @@ for env in envs:
                          "--env_name", env,
                          "--seed", str(seed),
                          "--exp_name", exp_name,
-                         "--collector_devices", "cuda:1", "cuda:2", "cuda:3",
+                         "--collector_devices", "cuda:1", "cuda:2", "cuda:3", "cuda:4", "cuda:5", "cuda:6", "cuda:7",
                          "cuda:4", ]
                 if _use_avg_pooling:
                     flags += ["--use_avg_pooling"]
