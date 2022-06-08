@@ -27,9 +27,10 @@ import gym
 envs = [k for k in gym.envs.registration.registry.env_specs.keys() if
         k.startswith("visual") and k != "visual_kitchen-v3"]
 
-for env in envs:
-    for _shared_mapping in shared_mapping:
-        for _use_avg_pooling in use_avg_pooling:
+deps = {}
+for _shared_mapping in shared_mapping:
+    for _use_avg_pooling in use_avg_pooling:
+        for env in envs:
             use_avg_pooling_str = ["avg_pooling"] if _use_avg_pooling else []
             shared_mapping_str = ["shared_mapping"] if _shared_mapping else []
             for seed in seed_list:
@@ -41,7 +42,8 @@ for env in envs:
                          "--env_name", env,
                          "--seed", str(seed),
                          "--exp_name", exp_name,
-                         "--collector_devices", "cuda:1", "cuda:2", "cuda:3", "cuda:4", "cuda:5", "cuda:6", "cuda:7",
+                         "--collector_devices", "cuda:1", "cuda:2", "cuda:3",
+                         "cuda:4", "cuda:5", "cuda:6", "cuda:7",
                          "cuda:4", ]
                 if _use_avg_pooling:
                     flags += ["--use_avg_pooling"]
@@ -49,8 +51,15 @@ for env in envs:
                     flags += ["--shared_mapping"]
 
                 config = parser_redq.parse_args(flags)
+                if env in deps:
+                    dep = f"after:{deps[env]}"
+                    executor.update_parameters(dependency=dep)
+                else:
+                    dep = ""
                 job = executor.submit(main_redq, config)
-                print("flags:", flags, "\n\njob id: ", job.job_id, "\n\nexp_name: ", exp_name)  # ID of your job
+                print("flags:", flags, f"\n\ndependency={dep}", "\n\njob id: ",
+                      job.job_id, "\n\nexp_name: ", exp_name)  # ID of your job
+                deps[env] = job.job_id
                 jobs.append(job)
                 exp_names.append(exp_name)
                 time.sleep(10)
