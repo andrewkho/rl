@@ -11,7 +11,7 @@ from redq import main as main_redq, parser as parser_redq
 executor = submitit.AutoExecutor(folder="REDQ_log")
 
 # set timeout in min, and partition for running the job
-executor.update_parameters(name="redq", timeout_min=1200, slurm_partition="train",
+executor.update_parameters(timeout_min=1200, slurm_partition="train",
                            gpus_per_node=8, cpus_per_task=95)
 jobs = []
 exp_names = []
@@ -30,8 +30,8 @@ envs = [k for k in gym.envs.registration.registry.env_specs.keys() if
 deps = {}
 for _shared_mapping in shared_mapping:
     for _use_avg_pooling in use_avg_pooling:
-        for env in envs:
-            for seed in seed_list:
+        for seed in seed_list:
+            for env in envs:
                 use_avg_pooling_str = ["avg_pooling"] if _use_avg_pooling else []
                 shared_mapping_str = ["shared_mapping"] if _shared_mapping else []
                 exp_name = "_".join(
@@ -43,23 +43,28 @@ for _shared_mapping in shared_mapping:
                          "--seed", str(seed),
                          "--exp_name", exp_name,
                          "--collector_devices", "cuda:1", "cuda:2", "cuda:3",
-                         "cuda:4", "cuda:5", "cuda:6", "cuda:7",
-                         "cuda:4", ]
+                         "cuda:4", "cuda:5", "cuda:6", "cuda:7", ]
                 if _use_avg_pooling:
                     flags += ["--use_avg_pooling"]
                 if _shared_mapping:
                     flags += ["--shared_mapping"]
 
                 config = parser_redq.parse_args(flags)
-                if env in deps:
-                    dep = f"afterany:{deps[env]}"
-                    executor.update_parameters(slurm_dependency=dep)
-                else:
-                    dep = ""
+
+                # dep = ""
+                # if env in deps:
+                #     dep = f"--dependency=afterany:{deps[env]}"
+                #     executor.update_parameters(slurm_srun_args=dep)
+                # elif "slurm_srun_args" in executor.parameters:
+                #     del executor.parameters["slurm_srun_args"]
+
                 job = executor.submit(main_redq, config)
-                print("flags:", flags, f"\n\ndependency={dep}", "\n\njob id: ",
-                      job.job_id, "\n\nexp_name: ", exp_name)  # ID of your job
-                deps[env] = job.job_id
+                print("flags:", flags,
+                      # f"\n\ndependency={dep}",
+                      "\n\njob id: ", job.job_id,
+                      "\n\nexp_name: ", exp_name)  # ID of your job
+
+                # deps[env] = job.job_id
                 jobs.append(job)
                 exp_names.append(exp_name)
                 time.sleep(3)

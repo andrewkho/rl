@@ -6,7 +6,7 @@ tanh_loc
 clip_norm 1000.0
 lr_scheduler=
 
-num_workers=4
+num_workers=7
 env_per_collector=1
 
 frame_skip=1
