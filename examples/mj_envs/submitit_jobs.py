@@ -52,7 +52,7 @@ for _shared_mapping in shared_mapping:
 
                 config = parser_redq.parse_args(flags)
                 if env in deps:
-                    dep = f"after:{deps[env]}"
+                    dep = f"afterany:{deps[env]}"
                     executor.update_parameters(dependency=dep)
                 else:
                     dep = ""
@@ -62,7 +62,7 @@ for _shared_mapping in shared_mapping:
                 deps[env] = job.job_id
                 jobs.append(job)
                 exp_names.append(exp_name)
-                time.sleep(10)
+                time.sleep(3)
 
 for job, exp_name in zip(jobs, exp_names):
     output = job.result()  # waits for completion and returns output
