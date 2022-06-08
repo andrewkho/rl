@@ -53,8 +53,7 @@ for _shared_mapping in shared_mapping:
                 config = parser_redq.parse_args(flags)
                 if env in deps:
                     dep = f"afterany:{deps[env]}"
-                    executor.update_parameters(timeout_min=1200, slurm_partition="train",
-                           gpus_per_node=8, cpus_per_task=95, dependency=dep)
+                    executor.update_parameters(redq_dependency=dep)
                 else:
                     dep = ""
                 job = executor.submit(main_redq, config)
