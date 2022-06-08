@@ -30,7 +30,7 @@ class MJEnv(GymEnv):
     ) -> "gym.core.Env":
         self.pixels_only = pixels_only
         try:
-            render_device = int(str(self.device)[-1]) + 1
+            render_device = int(str(self.device)[-1])
         except ValueError:
             render_device = 0
         print(f"rendering device: {render_device}, device is {self.device}")
@@ -128,7 +128,7 @@ class MJEnv(GymEnv):
     def to(self, *args, **kwargs):
         out = super().to(*args, **kwargs)
         try:
-            out.render_device = int(str(out.device)[-1]) + 1
+            out.render_device = int(str(out.device)[-1])
         except ValueError:
             out.render_device = 0
         self._build_env(self.envname, self.taskname, **self.constructor_kwargs)
