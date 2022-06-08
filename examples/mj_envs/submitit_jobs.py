@@ -11,7 +11,7 @@ from redq import main as main_redq, parser as parser_redq
 executor = submitit.AutoExecutor(folder="REDQ_log")
 
 # set timeout in min, and partition for running the job
-executor.update_parameters(timeout_min=1200, slurm_partition="train",
+executor.update_parameters(name="redq", timeout_min=1200, slurm_partition="train",
                            gpus_per_node=8, cpus_per_task=95)
 jobs = []
 exp_names = []
@@ -31,9 +31,9 @@ deps = {}
 for _shared_mapping in shared_mapping:
     for _use_avg_pooling in use_avg_pooling:
         for env in envs:
-            use_avg_pooling_str = ["avg_pooling"] if _use_avg_pooling else []
-            shared_mapping_str = ["shared_mapping"] if _shared_mapping else []
             for seed in seed_list:
+                use_avg_pooling_str = ["avg_pooling"] if _use_avg_pooling else []
+                shared_mapping_str = ["shared_mapping"] if _shared_mapping else []
                 exp_name = "_".join(
                     ["SUBMITIT", env, "seed",
                      str(seed)] + use_avg_pooling_str + shared_mapping_str)
