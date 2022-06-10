@@ -320,10 +320,13 @@ register(
 
 
 # Franka Appliance ======================================================================
-from mj_envs.envs.relay_kitchen.franka_appliance_v1 import (
-    FrankaApplianceFixed,
-    FrankaApplianceRandom,
-)
+try:
+    from mj_envs.envs.relay_kitchen.franka_appliance_v1 import FrankaAppliance
+except ImportError:
+    from mj_envs.envs.relay_kitchen.franka_appliance_v1 import (
+        FrankaApplianceFixed,
+        FrankaApplianceRandom,
+    )
 
 # MICROWAVE
 obs_keys_wt = {
