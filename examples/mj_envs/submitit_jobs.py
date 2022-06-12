@@ -11,13 +11,13 @@ executor = submitit.AutoExecutor(folder="REDQ_log")
 
 # set timeout in min, and partition for running the job
 executor.update_parameters(
-    timeout_min=1200, slurm_partition="train", gpus_per_node=8, cpus_per_task=95
+    timeout_min=1200, slurm_partition="train", gpus_per_node=4, cpus_per_task=47
 )
 jobs = []
 exp_names = []
 seed_list = [1, 42, 1988]
-use_avg_pooling = [True, False]
-shared_mapping = [True, False]
+use_avg_pooling = [False]
+shared_mapping = [False]
 
 envs = []
 
@@ -51,14 +51,24 @@ for _shared_mapping in shared_mapping:
                     str(seed),
                     "--exp_name",
                     exp_name,
+                    "--num_workers",
+                    "12",
+                    "--env_per_collector",
+                    "4",
+                    "--frames_per_batch",
+                    "200",
+                    "--optim_steps_per_batch",
+                    "8",
+                    "--batch_size",
+                    "512",
                     "--collector_devices",
                     "cuda:1",
                     "cuda:2",
                     "cuda:3",
-                    "cuda:4",
-                    "cuda:5",
-                    "cuda:6",
-                    "cuda:7",
+                    # "cuda:4",
+                    # "cuda:5",
+                    # "cuda:6",
+                    # "cuda:7",
                 ]
                 if _use_avg_pooling:
                     flags += ["--use_avg_pooling"]
