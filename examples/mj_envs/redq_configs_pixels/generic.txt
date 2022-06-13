@@ -28,5 +28,3 @@ reward_scaling=1.0
 reward_loc=0.0
 multi_step
 include_state
-
-batch_transform
