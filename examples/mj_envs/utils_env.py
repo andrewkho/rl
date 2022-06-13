@@ -6,7 +6,7 @@
 from argparse import Namespace
 from typing import Callable, Optional, Union
 
-from torchrl.envs import DMControlEnv, GymEnv, RetroEnv, ParallelEnv
+from torchrl.envs import DMControlEnv, ParallelEnv
 from torchrl.envs.common import _EnvClass
 from torchrl.envs.env_creator import env_creator, EnvCreator
 from torchrl.envs.transforms import (

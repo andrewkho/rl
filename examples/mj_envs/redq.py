@@ -137,7 +137,7 @@ def main(args):
         # make sure proof_env is closed
         proof_env.close()
     elif args.from_pixels:
-        stats = {"loc": 0.5, "scale": 0.5}
+        stats_pixels = {"loc": 0.5, "scale": 0.5}
     proof_env = transformed_env_constructor(
         args=args,
         use_env_creator=False,
