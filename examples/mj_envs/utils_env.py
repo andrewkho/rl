@@ -202,7 +202,7 @@ def transformed_env_constructor(
 
         if custom_env is None and custom_env_maker is None:
             env_kwargs = {
-                "envname": env_name,
+                "env_name": env_name,
                 "device": "cpu",
                 "frame_skip": frame_skip,
                 "from_pixels": from_pixels or len(video_tag),

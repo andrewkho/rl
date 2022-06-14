@@ -22,8 +22,7 @@ class MJEnv(GymEnv):
 
     def _build_env(
         self,
-        envname: str,
-        taskname: str,
+        env_name: str,
         from_pixels: bool = False,
         pixels_only: bool = False,
         **kwargs,
@@ -36,23 +35,19 @@ class MJEnv(GymEnv):
         print(f"rendering device: {render_device}, device is {self.device}")
         if not _has_gym:
             raise RuntimeError(
-                f"gym not found, unable to create {envname}. "
+                f"gym not found, unable to create {env_name}. "
                 f"Consider downloading and installing dm_control from"
                 f" {self.git_url}"
             )
-        if not ((taskname == "") or (taskname is None)):
-            raise ValueError(
-                f"gym does not support taskname, received {taskname} instead."
-            )
         try:
             env = self.lib.make(
-                envname, frameskip=self.frame_skip, device_id=render_device, **kwargs
+                env_name, frameskip=self.frame_skip, device_id=render_device, **kwargs
             )
             self.wrapper_frame_skip = 1
         except TypeError as err:
             if "unexpected keyword argument 'frameskip" not in str(err):
                 raise TypeError(err)
-            env = self.lib.make(envname)
+            env = self.lib.make(env_name)
             self.wrapper_frame_skip = self.frame_skip
         self._env = env
 
@@ -74,7 +69,7 @@ class MJEnv(GymEnv):
             self.cameras = kwargs.get(
                 "cameras",
                 ["left_cam", "right_cam", "top_cam"]
-                if "franka" in envname
+                if "franka" in env_name
                 else ["left_cam", "right_cam"],
             )
 
@@ -131,7 +126,7 @@ class MJEnv(GymEnv):
             out.render_device = int(str(out.device)[-1])
         except ValueError:
             out.render_device = 0
-        self._build_env(self.envname, self.taskname, **self.constructor_kwargs)
+        self._build_env(env_name=self.env_name, **self.constructor_kwargs)
         return out
 
 
