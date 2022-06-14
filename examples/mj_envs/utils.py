@@ -49,16 +49,15 @@ class MJEnv(GymEnv):
                 raise TypeError(err)
             env = self.lib.make(env_name)
             self.wrapper_frame_skip = self.frame_skip
-        self._env = env
 
         self.from_pixels = from_pixels
         self.render_device = render_device
 
         self.action_spec = _gym_to_torchrl_spec_transform(
-            self._env.action_space, device=self.device
+            env.action_space, device=self.device
         )
         self.observation_spec = _gym_to_torchrl_spec_transform(
-            self._env.observation_space,
+            env.observation_space,
             device=self.device,
         )
         if not isinstance(self.observation_spec, CompositeSpec):
@@ -99,6 +98,8 @@ class MJEnv(GymEnv):
         self.reward_spec = UnboundedContinuousTensorSpec(
             device=self.device,
         )  # default
+
+        return env
 
     def _step(self, td):
         td = super()._step(td)
