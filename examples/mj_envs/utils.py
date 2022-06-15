@@ -135,7 +135,7 @@ class MJEnv(GymEnv):
             out.render_device = int(str(out.device)[-1])
         except ValueError:
             out.render_device = 0
-        self._build_env(**self._constructor_kwargs)
+        # self._build_env(**self._constructor_kwargs)
         return out
 
 
