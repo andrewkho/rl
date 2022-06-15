@@ -34,10 +34,9 @@ class MJEnv(GymEnv):
         except ValueError:
             render_device = 0
         print(f"rendering device: {render_device}, device is {self.device}")
-        try:
-            raise RuntimeError
-        except RuntimeError:
-            print(traceback.format_exc())
+
+        traceback.print_stack()
+
         if not _has_gym:
             raise RuntimeError(
                 f"gym not found, unable to create {env_name}. "
@@ -57,7 +56,9 @@ class MJEnv(GymEnv):
 
         self.from_pixels = from_pixels
         self.render_device = render_device
+        return env
 
+    def _make_specs(self, env: "gym.Env") -> None:
         self.action_spec = _gym_to_torchrl_spec_transform(
             env.action_space, device=self.device
         )
@@ -69,8 +70,9 @@ class MJEnv(GymEnv):
             self.observation_spec = CompositeSpec(
                 next_observation=self.observation_spec
             )
-        if from_pixels:
-            self.cameras = kwargs.get(
+        env_name = self._constructor_kwargs["env_name"]
+        if self.from_pixels:
+            self.cameras = self._constructor_kwargs.get(
                 "cameras",
                 ["left_cam", "right_cam", "top_cam"]
                 if "franka" in env_name
@@ -80,8 +82,8 @@ class MJEnv(GymEnv):
             self.observation_spec["next_pixels"] = NdBoundedTensorSpec(
                 torch.zeros(
                     len(self.cameras),
-                    480,
-                    640,
+                    244, # working with 640
+                    244, # working with 480
                     3,
                     device=self.device,
                     dtype=torch.uint8,
@@ -89,13 +91,13 @@ class MJEnv(GymEnv):
                 255
                 * torch.ones(
                     len(self.cameras),
-                    480,
-                    640,
+                    244,
+                    244,
                     3,
                     device=self.device,
                     dtype=torch.uint8,
                 ),
-                torch.Size(torch.Size([len(self.cameras), 480, 640, 3])),
+                torch.Size(torch.Size([len(self.cameras), 244, 244, 3])),
                 dtype=torch.uint8,
                 device=self.device,
             )
@@ -104,13 +106,13 @@ class MJEnv(GymEnv):
             device=self.device,
         )  # default
 
-        return env
 
     def _step(self, td):
         td = super()._step(td)
         if self.from_pixels:
             img = self._env.render_camera_offscreen(
-                sim=self._env.sim, cameras=self.cameras, device_id=self.render_device
+                sim=self._env.sim, cameras=self.cameras, device_id=self.render_device,
+                width=244, height=244, # working with 640 / 480
             )
             img = torch.Tensor(img).squeeze(0)
             td.set("next_pixels", img)
@@ -120,7 +122,8 @@ class MJEnv(GymEnv):
         td = super()._reset(td, **kwargs)
         if self.from_pixels:
             img = self._env.render_camera_offscreen(
-                sim=self._env.sim, cameras=self.cameras, device_id=self.render_device
+                sim=self._env.sim, cameras=self.cameras, device_id=self.render_device,
+                width = 244, height = 244,
             )
             img = torch.Tensor(img).squeeze(0)
             td.set("next_pixels", img)
