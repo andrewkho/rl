@@ -76,7 +76,7 @@ class VideoRecorder(ObservationTransform):
     def _apply_transform(self, observation: torch.Tensor) -> torch.Tensor:
         if not (observation.shape[-1] == 3 or observation.ndimension() == 2):
             raise RuntimeError(f"Invalid observation shape, got: {observation.shape}")
-        observation_trsf = observation
+        observation_trsf = observation.clone()
         self.count += 1
         if self.count % self.skip == 0:
             if observation.ndimension() == 2:

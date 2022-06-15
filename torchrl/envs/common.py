@@ -515,7 +515,7 @@ class _EnvClass:
                     raise Exception(
                         "dtype must be a numpy-compatible dtype. Got {dtype}"
                     )
-            value = torch.as_tensor(value, device=device)
+            value = torch.tensor(value, device=device)
         else:
             value = value.to(device)
         # if dtype is not None:

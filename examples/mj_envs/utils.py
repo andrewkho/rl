@@ -35,7 +35,7 @@ class MJEnv(GymEnv):
             render_device = 0
         print(f"rendering device: {render_device}, device is {self.device}")
 
-        traceback.print_stack()
+        # traceback.print_stack()
 
         if not _has_gym:
             raise RuntimeError(
@@ -132,9 +132,11 @@ class MJEnv(GymEnv):
     def to(self, *args, **kwargs):
         out = super().to(*args, **kwargs)
         try:
-            out.render_device = int(str(out.device)[-1])
+            render_device = int(str(out.device)[-1])
         except ValueError:
-            out.render_device = 0
+            render_device = 0
+        if render_device != self.render_device:
+            out._build_env(**self._constructor_kwargs)
         # self._build_env(**self._constructor_kwargs)
         return out
 

@@ -186,7 +186,7 @@ class MemmapTensor(object):
         return self._np_to_tensor(memmap_array)
 
     def _np_to_tensor(self, memmap_array: np.ndarray) -> torch.Tensor:
-        return torch.as_tensor(memmap_array, device=self.device)
+        return torch.tensor(memmap_array, device=self.device)
 
     @classmethod
     def __torch_function__(
