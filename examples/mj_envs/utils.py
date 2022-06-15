@@ -34,7 +34,10 @@ class MJEnv(GymEnv):
         except ValueError:
             render_device = 0
         print(f"rendering device: {render_device}, device is {self.device}")
-        print(traceback.format_exc())
+        try:
+            raise RuntimeError
+        except RuntimeError:
+            print(traceback.format_exc())
         if not _has_gym:
             raise RuntimeError(
                 f"gym not found, unable to create {env_name}. "
