@@ -114,20 +114,27 @@ def main(args):
             datetime.now().strftime("%y_%m_%d-%H_%M_%S"),
         ]
     )
+
+    print("Creating writer")
     writer = SummaryWriter(f"redq_logging/{exp_name}")
     video_tag = exp_name if args.record_video else ""
 
+    print("Gathering stats")
     stats_pixels = None
     stats_state = None
     if not args.vecnorm and args.norm_stats:
+        print("Creating proof env without stats: ", end="\t")
         proof_env = transformed_env_constructor(args=args, use_env_creator=False)()
+        print(proof_env)
         if args.from_pixels:
+            print("Pixel stats")
             stats_pixels = get_stats_random_rollout(
                 args,
                 proof_env,
                 key="next_pixels",
             )
         if not args.from_pixels or args.include_state:
+            print("State stats")
             stats_state = get_stats_random_rollout(
                 args,
                 proof_env,
@@ -138,12 +145,16 @@ def main(args):
         proof_env.close()
     elif args.from_pixels:
         stats_pixels = {"loc": 0.5, "scale": 0.5}
+    print("Creating proof env with stats: ", end="\t")
     proof_env = transformed_env_constructor(
         args=args,
         use_env_creator=False,
         stats_pixels=stats_pixels,
         stats_state=stats_state,
     )()
+    print(proof_env)
+
+    print("Creating mode: ", end="\t")
     if args.from_pixels:
         if args.shared_mapping:
             if args.include_state:
@@ -182,8 +193,11 @@ def main(args):
             device=device,
         )
         actor_model_explore = model[0]
+    print(model)
 
+    print("Creating loss: ", end="\t")
     loss_module, target_net_updater = make_redq_loss(model, args)
+    print(loss_module, target_net_updater)
     if args.ou_exploration:
         if args.gSDE:
             raise RuntimeError("gSDE and ou_exploration are incompatible")
@@ -203,7 +217,9 @@ def main(args):
     else:
         action_dim_gsde, state_dim_gsde = None, None
 
+    print("closing proof env")
     proof_env.close()
+    print("Creating parallel env")
     create_env_fn = parallel_env_constructor(
         args=args,
         stats_pixels=stats_pixels,
@@ -212,18 +228,17 @@ def main(args):
         state_dim_gsde=state_dim_gsde,
     )
 
+    print("Creating collector")
     collector = make_collector_offpolicy(
         make_env=create_env_fn,
         actor_model_explore=actor_model_explore,
         args=args,
-        # make_env_kwargs=[
-        #     {"device": device} if device >= 0 else {}
-        #     for device in args.env_rendering_devices
-        # ],
     )
 
+    print("Creating replay buffer")
     replay_buffer = make_replay_buffer(device, args)
 
+    print("Creating recorder")
     recorder = transformed_env_constructor(
         args,
         video_tag=video_tag,
@@ -257,6 +272,7 @@ def main(args):
             t.scale.fill_(1.0)
             t.loc.fill_(0.0)
 
+    print("Creating trainer")
     trainer = make_trainer(
         collector,
         loss_module,
