@@ -24,7 +24,8 @@ class GymLikeEnv(_EnvWrapper):
         ``env.step(action: np.ndarray) -> Tuple[Union[np.ndarray, dict], double, bool, *info]``
 
     where the outputs are the observation, reward and done state respectively.
-    In this implementation, the info output is discarded.
+    In this implementation, the info output is discarded (but specific keys can be read
+    by updating the `"info_keys"` class attribute).
 
     By default, the first output is written at the "next_observation" key-value pair in the output tensordict, unless
     the first output is a dictionary. In that case, each observation output will be put at the corresponding
@@ -45,7 +46,8 @@ class GymLikeEnv(_EnvWrapper):
             if _reward is None:
                 _reward = 0.0
             reward += _reward
-            if done:
+            # TODO: check how to deal with np arrays
+            if (isinstance(done, torch.Tensor) and done.all()) or done:  # or any?
                 break
 
         obs_dict = self._read_obs(obs)
@@ -75,7 +77,7 @@ class GymLikeEnv(_EnvWrapper):
             batch_size=self.batch_size,
             device=self.device,
         )
-        self._is_done = torch.zeros(1, dtype=torch.bool)
+        self._is_done = torch.zeros(self.batch_size, dtype=torch.bool)
         tensordict_out.set("done", self._is_done)
         return tensordict_out
 
@@ -97,4 +99,6 @@ class GymLikeEnv(_EnvWrapper):
         return step_outputs_tuple
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(env={self.envname}, task={self.taskname if self.taskname else None}, batch_size={self.batch_size})"
+        return (
+            f"{self.__class__.__name__}(env={self._env}, batch_size={self.batch_size})"
+        )

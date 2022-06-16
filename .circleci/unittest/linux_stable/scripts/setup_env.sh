@@ -13,6 +13,7 @@ git config --global --add safe.directory '*'
 root_dir="$(git rev-parse --show-toplevel)"
 conda_dir="${root_dir}/conda"
 env_dir="${root_dir}/env"
+lib_dir="${env_dir}/lib"
 
 cd "${root_dir}"
 
@@ -52,22 +53,9 @@ printf "* Installing dependencies (except PyTorch)\n"
 echo "  - python=${PYTHON_VERSION}" >> "${this_dir}/environment.yml"
 cat "${this_dir}/environment.yml"
 
-conda install -y -c conda-forge glfw
-conda install -y -c conda-forge mesa
-#conda install -y -c menpo osmesa
-conda install -y -c conda-forge glew
+#conda install -y -c conda-forge glfw
+#conda install -y -c conda-forge mesa
+##conda install -y -c menpo osmesa
+#conda install -y -c conda-forge glew
 
 conda env update --file "${this_dir}/environment.yml" --prune
-
-if [[ $OSTYPE == 'darwin'* ]]; then
-  PRIVATE_MUJOCO_GL=glfw
-else
-  PRIVATE_MUJOCO_GL=egl
-fi
-
-conda env config vars set MUJOCO_PY_MUJOCO_PATH=$root_dir/.mujoco/mujoco210 \
-  DISPLAY=unix:0.0 \
-  MJLIB_PATH=$root_dir/.mujoco/mujoco-2.1.1/lib/libmujoco.so.2.1.1 \
-  LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$root_dir/.mujoco/mujoco210/bin \
-  SDL_VIDEODRIVER=dummy \
-  MUJOCO_GL=$PRIVATE_MUJOCO_GL

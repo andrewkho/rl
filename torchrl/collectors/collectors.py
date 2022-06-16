@@ -334,7 +334,6 @@ class SyncDataCollector(_DataCollector):
             >>> out_seed = collector.set_seed(1)  # out_seed = 6
 
         """
-        print(f"setting seed of {self.__class__.__name__}")
         return self.env.set_seed(seed)
 
     def iterator(self) -> Iterator[_TensorDict]:
@@ -835,7 +834,6 @@ class _MultiDataCollector(_DataCollector):
             >>> out_seed = collector.set_seed(1)  # out_seed = 6
 
         """
-        print(f"setting seed of {self.__class__.__name__}")
         _check_for_faulty_process(self.procs)
         for idx in range(self.num_workers):
             self.pipes[idx].send((seed, "seed"))
@@ -1018,7 +1016,6 @@ class MultiaSyncDataCollector(_MultiDataCollector):
             for _device in self.passing_devices:
                 if _device not in self.postprocs:
                     self.postprocs[_device] = deepcopy(postproc).to(_device)
-
 
     @property
     def frames_per_batch_worker(self):
