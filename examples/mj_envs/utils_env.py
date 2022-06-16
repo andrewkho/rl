@@ -106,6 +106,7 @@ def make_env_transforms(
         selected_keys = [
             key for key in env.observation_spec.keys() if "pixels" not in key
         ]
+        assert len(selected_keys), f"got keys {env.observation_spec.keys()}"
 
         # even if there is a single tensor, it'll be renamed in "next_observation_vector"
         out_key = "next_observation_vector"
@@ -206,10 +207,10 @@ def transformed_env_constructor(
                 "device": "cpu",
                 "frame_skip": frame_skip,
                 "from_pixels": from_pixels or len(video_tag),
-                "pixels_only": from_pixels,
+                "pixels_only": from_pixels and not args.include_state,
             }
             if env_library is DMControlEnv:
-                env_kwargs.update({"taskname": env_task})
+                env_kwargs.update({"task_name": env_task})
             env_kwargs.update(kwargs)
             env = env_library(**env_kwargs)
         elif custom_env is None and custom_env_maker is not None:
